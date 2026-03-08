@@ -42,6 +42,13 @@ for sql_file in "$PROJECT_ROOT"/flightdata_*.sql; do
   echo "   ✔ ${filename} imported."
 done
 
+if [ -f "$PROJECT_ROOT/create_user.sql" ]; then
+  echo "📥 Importing create_user.sql..."
+  mysql -h "$MYSQL_HOST" -P "$MYSQL_PORT" -u "$MYSQL_USER" -p"$MYSQL_PWD" \
+    "$DATABASE" < "$PROJECT_ROOT/create_user.sql"
+  echo "   ✔ create_user.sql imported."
+fi
+
 echo ""
 echo "🎉 All SQL scripts imported into '${DATABASE}' successfully."
 echo "   Connect with: mysql -h ${MYSQL_HOST} -P ${MYSQL_PORT} -u ${MYSQL_USER} -p${MYSQL_PWD} ${DATABASE}"
