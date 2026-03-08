@@ -1,0 +1,16 @@
+/workspace/backend/dal/bin/Debug/net10.0/dal.deps.json
+/workspace/backend/dal/bin/Debug/net10.0/dal.dll
+/workspace/backend/dal/bin/Debug/net10.0/dal.pdb
+/workspace/backend/dal/bin/Debug/net10.0/utils.dll
+/workspace/backend/dal/bin/Debug/net10.0/utils.pdb
+/workspace/backend/dal/obj/Debug/net10.0/dal.csproj.AssemblyReference.cache
+/workspace/backend/dal/obj/Debug/net10.0/dal.GeneratedMSBuildEditorConfig.editorconfig
+/workspace/backend/dal/obj/Debug/net10.0/dal.AssemblyInfoInputs.cache
+/workspace/backend/dal/obj/Debug/net10.0/dal.AssemblyInfo.cs
+/workspace/backend/dal/obj/Debug/net10.0/dal.csproj.CoreCompileInputs.cache
+/workspace/backend/dal/obj/Debug/net10.0/dal.sourcelink.json
+/workspace/backend/dal/obj/Debug/net10.0/dal.csproj.Up2Date
+/workspace/backend/dal/obj/Debug/net10.0/dal.dll
+/workspace/backend/dal/obj/Debug/net10.0/refint/dal.dll
+/workspace/backend/dal/obj/Debug/net10.0/dal.pdb
+/workspace/backend/dal/obj/Debug/net10.0/ref/dal.dll
