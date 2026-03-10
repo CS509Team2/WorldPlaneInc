@@ -1,4 +1,4 @@
-﻿using System.Data;
+using System.Data;
 using dal;
 
 namespace model;
@@ -18,5 +18,10 @@ public static class LoginModel
         }
 
         return false;
+    }
+
+    public static bool Signup(string username, string password)
+    {
+        return LoginDal.InsertUser(username, password);
     }
 }

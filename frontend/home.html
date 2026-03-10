@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Flight Home Page</title>
+  <link rel="stylesheet" href="style.css" />
+  <style>
+    .home-card {
+      text-align: center;
+      padding: 3rem 2rem;
+    }
+
+    .home-card h1 {
+      font-size: 2rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .home-card .welcome {
+      color: #6b7280;
+      font-size: 1.05rem;
+      margin-bottom: 2rem;
+    }
+
+    .btn-logout {
+      width: auto;
+      padding: 0.6rem 2rem;
+      display: inline-block;
+    }
+  </style>
+</head>
+<body>
+  <div class="card home-card">
+    <h1>Flight Home Page</h1>
+    <p class="welcome" id="welcome-msg">Welcome!</p>
+    <a href="login.html" class="btn btn-logout">Logout</a>
+  </div>
+
+  <script>
+    const username = sessionStorage.getItem("username");
+    if (!username) {
+      window.location.href = "login.html";
+    } else {
+      document.getElementById("welcome-msg").textContent = "Welcome, " + username + "!";
+    }
+  </script>
+</body>
+</html>
