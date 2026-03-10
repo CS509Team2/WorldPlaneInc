@@ -1,4 +1,4 @@
-﻿using MySql.Data.MySqlClient;
+using MySql.Data.MySqlClient;
 using System.Data;
 
 namespace dal;
@@ -20,6 +20,26 @@ public class LoginDal
         }
 
         return dt;
+    }
+
+    public static bool InsertUser(string username, string password)
+    {
+        try
+        {
+            using var connection = new MySqlConnection(connectionString);
+            connection.Open();
+            using var cmd = new MySqlCommand(
+                "INSERT INTO users (Username, Password) VALUES (@username, @password)",
+                connection);
+            cmd.Parameters.AddWithValue("@username", username);
+            cmd.Parameters.AddWithValue("@password", password);
+            cmd.ExecuteNonQuery();
+            return true;
+        }
+        catch (MySqlException ex) when (ex.Number == 1062)
+        {
+            return false;
+        }
     }
 
 }

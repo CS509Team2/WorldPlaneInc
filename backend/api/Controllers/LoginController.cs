@@ -3,22 +3,35 @@ using model;
 
 namespace api.Controllers;
 
+public record LoginRequest(string Username, string Password);
+
 [ApiController]
 [Route("[controller]")]
 public class LoginController : ControllerBase
 {
-
-    //Use this to log in, you might need to change the port: http://127.0.0.1:5237/login/api/login?username=user1&password=1111
-    [HttpGet("api/login")]
-    public IActionResult Login(string username, string password)
+    [HttpPost("api/login")]
+    public IActionResult Login([FromBody] LoginRequest request)
     {
-        if (LoginModel.Login(username, password))
+        if (LoginModel.Login(request.Username, request.Password))
         {
-            return this.Ok("Welcome " + username + "!");
+            return Ok(new { message = "Welcome " + request.Username + "!" });
         }
         else
         {
-            return this.Ok("Invalid username or password. Please try again.");
+            return Unauthorized(new { message = "Invalid username or password." });
+        }
+    }
+
+    [HttpPost("api/signup")]
+    public IActionResult Signup([FromBody] LoginRequest request)
+    {
+        if (LoginModel.Signup(request.Username, request.Password))
+        {
+            return Ok(new { message = "Account created successfully." });
+        }
+        else
+        {
+            return Conflict(new { message = "Username is already taken." });
         }
     }
 }
