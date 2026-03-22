@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using dal;
+using model;
 using System.Data;
 
 namespace api.Controllers;
@@ -53,5 +54,51 @@ public class FlightsController : ControllerBase
         }
 
         return Ok(flights);
+    }
+
+    [HttpPost("search")]
+    public IActionResult Search([FromBody] FlightSearchRequest request)
+    {
+        if (string.IsNullOrWhiteSpace(request.DepartureAirport))
+            return BadRequest("DepartureAirport is required.");
+
+        if (string.IsNullOrWhiteSpace(request.ArrivalAirport))
+            return BadRequest("ArrivalAirport is required.");
+
+        if (request.DepartureAirport.Trim().Equals(request.ArrivalAirport.Trim(), StringComparison.OrdinalIgnoreCase))
+            return BadRequest("DepartureAirport and ArrivalAirport must be different.");
+
+        if (request.DepartureDate == default)
+            return BadRequest("DepartureDate is required.");
+
+        if (request.ReturnDate.HasValue && request.ReturnDate.Value < request.DepartureDate)
+            return BadRequest("ReturnDate must be on or after DepartureDate.");
+
+        if (request.DepartureTimeStart.HasValue && request.DepartureTimeEnd.HasValue
+            && request.DepartureTimeStart.Value > request.DepartureTimeEnd.Value)
+            return BadRequest("DepartureTimeStart must be before DepartureTimeEnd.");
+
+        if (request.ArrivalTimeStart.HasValue && request.ArrivalTimeEnd.HasValue
+            && request.ArrivalTimeStart.Value > request.ArrivalTimeEnd.Value)
+            return BadRequest("ArrivalTimeStart must be before ArrivalTimeEnd.");
+
+        var connectionString = _configuration.GetConnectionString("DefaultConnection");
+
+        if (string.IsNullOrWhiteSpace(connectionString))
+            return StatusCode(500, "Database connection string is missing.");
+
+        var searchModel = new FlightSearchModel(connectionString);
+
+        var result = searchModel.Search(
+            request.DepartureAirport.Trim(),
+            request.ArrivalAirport.Trim(),
+            request.DepartureDate,
+            request.ReturnDate,
+            request.DepartureTimeStart,
+            request.DepartureTimeEnd,
+            request.ArrivalTimeStart,
+            request.ArrivalTimeEnd);
+
+        return Ok(result);
     }
 }

@@ -4,3 +4,45 @@ GET {{api_HostAddress}}/weatherforecast/
 Accept: application/json
 
 ###
+
+GET {{api_HostAddress}}/Flights/getNextFlights?count=5
+Accept: application/json
+
+###
+
+POST {{api_HostAddress}}/Flights/search
+Content-Type: application/json
+
+{
+  "departureAirport": "ATL",
+  "arrivalAirport": "DEN",
+  "departureDate": "2023-01-03"
+}
+
+###
+
+POST {{api_HostAddress}}/Flights/search
+Content-Type: application/json
+
+{
+  "departureAirport": "ATL",
+  "arrivalAirport": "DEN",
+  "departureDate": "2023-01-03",
+  "returnDate": "2023-01-05",
+  "departureTimeStart": "08:00",
+  "departureTimeEnd": "18:00"
+}
+
+###
+
+POST {{api_HostAddress}}/Flights/search
+Content-Type: application/json
+
+{
+  "departureAirport": "MCO",
+  "arrivalAirport": "LAX",
+  "departureDate": "2023-01-03",
+  "arrivalTimeEnd": "20:00"
+}
+
+###
