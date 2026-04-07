@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Choose Seats</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+
+<body>
+  <div class="card" style = "width: 36rem;">
+    <h1 style="text-align: center;">
+        Select Seats
+    </h1>
+    <hr>
+    <div style="text-align:left;">
+        <h3 id="seats-ids" style="font-weight: bold;">A1,A2</h3>
+    </div>
+    <hr>
+    <table class = "grid">
+        <tr>
+            <td class="griddata"><h3> </h3></td>
+            <td class="griddata"><h3>A</h3></td>
+            <td class="griddata"><h3>B</h3></td>
+            <td class="griddata"><h3>C</h3></td>
+            <td class="griddata"><h3>D</h3></td>
+            <td class="griddata"><h3>E</h3></td>
+            <td class="griddata"><h3>F</h3></td>
+        </tr>
+
+        <tbody id="seats-table">
+
+        </tbody>
+
+
+    </table>
+    <script>
+        const body = document.getElementById("seats-table");
+
+        for (var i = 1; i <= 20; i++) {
+            const row = document.createElement("tr");
+            row.innerHTML = 
+            `<td class="griddata"><h3>${i}</h3></td>
+            <td class="griddata"><input type="checkbox" class="checkbox"/></td>
+            <td class="griddata"><input type="checkbox" class="checkbox"/></td>
+            <td class="griddata"><input type="checkbox" class="checkbox"/></td>
+            <td class="griddata"><input type="checkbox" class="checkbox"/></td>
+            <td class="griddata"><input type="checkbox" class="checkbox"/></td>
+            <td class="griddata"><input type="checkbox" class="checkbox"/></td>
+            `;
+
+            body.appendChild(row)
+        }
+    </script>
+
+    <div style="display:flex; gap: 1rem;">
+        <button class="btn"
+            style="background: linear-gradient(135deg, #66eaba 0%, #4b6ea2 100%);"
+        >
+            Confirm Seats
+        </button>
+        <button class="btn"
+            style="background: linear-gradient(135deg, #ea6692 0%, #a24b91 100%);"
+        >
+            Return
+        </button>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+
+</html>
