@@ -29,6 +29,17 @@ function clearMessage(el) {
 }
 
 document.addEventListener("DOMContentLoaded", () => {
+  const guestLink = document.getElementById("guest-link");
+  if (guestLink) {
+    guestLink.addEventListener("click", (e) => {
+      e.preventDefault();
+      const username = "guest";
+      sessionStorage.setItem("username", username);
+
+      setTimeout(() => (window.location.href = "home.html"), 1000);
+    });
+  }
+
   const loginForm = document.getElementById("login-form");
   if (loginForm) {
     loginForm.addEventListener("submit", async (e) => {

@@ -131,3 +131,40 @@ body {
 .footer-link a:hover {
   text-decoration: underline;
 }
+
+.btnItinerary {
+  width: 50%;
+  height: 7rem;
+  padding: 0.75rem;
+  border: none;
+  border-radius: 0.5rem;
+  font-size: 1rem;
+  font-weight: 600;
+  color: #fff;
+  background: linear-gradient(135deg, #ea6692 0%, #a24b91 100%);
+  cursor: pointer;
+  transition: opacity 0.2s, transform 0.1s;
+  margin-top: 0.5rem;
+}
+
+.grid {
+  border: 1px solid;
+  margin-left: 20%;
+  margin-right: 20%;
+}
+
+.griddata {
+  gap:0.5rem;
+  width: 0.75rem;
+  height: 0.75rem;
+  text-align: center;
+  align-content: center;
+  border: 1px solid;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+.checkbox {
+  width:1rem;
+  height:1rem;
+}
