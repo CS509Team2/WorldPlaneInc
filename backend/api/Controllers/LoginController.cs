@@ -9,10 +9,23 @@ public record LoginRequest(string Username, string Password);
 [Route("[controller]")]
 public class LoginController : ControllerBase
 {
-    [HttpPost("api/login")]
-    public IActionResult Login([FromBody] LoginRequest request)
+    private readonly IConfiguration _configuration;
+
+    public LoginController(IConfiguration configuration)
     {
-        if (LoginModel.Login(request.Username, request.Password))
+        _configuration = configuration;
+    }
+
+    [HttpPost("api/login")]
+    public async Task<IActionResult> Login([FromBody] LoginRequest request)
+    {
+        var connectionString = _configuration.GetConnectionString("DefaultConnection");
+        if (string.IsNullOrWhiteSpace(connectionString))
+            return StatusCode(500, "Database connection string is missing.");
+
+        var loginModel = new LoginModel(connectionString);
+
+        if (await loginModel.LoginAsync(request.Username, request.Password))
         {
             return Ok(new { message = "Welcome " + request.Username + "!" });
         }
@@ -23,9 +36,15 @@ public class LoginController : ControllerBase
     }
 
     [HttpPost("api/signup")]
-    public IActionResult Signup([FromBody] LoginRequest request)
+    public async Task<IActionResult> Signup([FromBody] LoginRequest request)
     {
-        if (LoginModel.Signup(request.Username, request.Password))
+        var connectionString = _configuration.GetConnectionString("DefaultConnection");
+        if (string.IsNullOrWhiteSpace(connectionString))
+            return StatusCode(500, "Database connection string is missing.");
+
+        var loginModel = new LoginModel(connectionString);
+
+        if (await loginModel.SignupAsync(request.Username, request.Password))
         {
             return Ok(new { message = "Account created successfully." });
         }

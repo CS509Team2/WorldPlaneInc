@@ -16,11 +16,8 @@ public class FlightsController : ControllerBase
         _configuration = configuration;
     }
 
-    ///<summary>
-    ///Returns a random set of upcoming flights from the database.
-    ///</summary>
     [HttpGet("getNextFlights")]
-    public IActionResult GetNextFlights([FromQuery] int count = 10)
+    public async Task<IActionResult> GetNextFlights([FromQuery] int count = 10)
     {
         if (count < 1 || count > 20)
         {
@@ -35,7 +32,7 @@ public class FlightsController : ControllerBase
         }
 
         var flightDal = new FlightQueryDal(connectionString);
-        var dt = flightDal.GetRandomFlights(count);
+        var dt = await flightDal.GetRandomFlightsAsync(count);
 
         var flights = new List<FlightRecord>();
 
@@ -57,7 +54,7 @@ public class FlightsController : ControllerBase
     }
 
     [HttpPost("search")]
-    public IActionResult Search([FromBody] FlightSearchRequest request)
+    public async Task<IActionResult> Search([FromBody] FlightSearchRequest request)
     {
         if (string.IsNullOrWhiteSpace(request.DepartureAirport))
             return BadRequest("DepartureAirport is required.");
@@ -89,7 +86,7 @@ public class FlightsController : ControllerBase
 
         var searchModel = new FlightSearchModel(connectionString);
 
-        var result = searchModel.Search(
+        var result = await searchModel.SearchAsync(
             request.DepartureAirport.Trim(),
             request.ArrivalAirport.Trim(),
             request.DepartureDate,

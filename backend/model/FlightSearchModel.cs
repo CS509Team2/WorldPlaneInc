@@ -12,7 +12,7 @@ public class FlightSearchModel
         _dal = new FlightSearchDal(connectionString);
     }
 
-    public FlightSearchResult Search(
+    public async Task<FlightSearchResult> SearchAsync(
         string departureAirport,
         string arrivalAirport,
         DateTime departureDate,
@@ -24,14 +24,14 @@ public class FlightSearchModel
     {
         var result = new FlightSearchResult();
 
-        result.OutboundItineraries = FindItineraries(
+        result.OutboundItineraries = await FindItinerariesAsync(
             departureAirport, arrivalAirport, departureDate,
             departureTimeStart, departureTimeEnd,
             arrivalTimeStart, arrivalTimeEnd);
 
         if (returnDate.HasValue)
         {
-            result.ReturnItineraries = FindItineraries(
+            result.ReturnItineraries = await FindItinerariesAsync(
                 arrivalAirport, departureAirport, returnDate.Value,
                 departureTimeStart, departureTimeEnd,
                 arrivalTimeStart, arrivalTimeEnd);
@@ -40,14 +40,14 @@ public class FlightSearchModel
         return result;
     }
 
-    private List<Itinerary> FindItineraries(
+    private async Task<List<Itinerary>> FindItinerariesAsync(
         string origin, string destination, DateTime date,
         TimeOnly? departTimeStart, TimeOnly? departTimeEnd,
         TimeOnly? arriveTimeStart, TimeOnly? arriveTimeEnd)
     {
         var itineraries = new List<Itinerary>();
 
-        var firstLegFlights = _dal.GetFlightsFromAirport(origin, date, departTimeStart, departTimeEnd);
+        var firstLegFlights = await _dal.GetFlightsFromAirportAsync(origin, date, departTimeStart, departTimeEnd);
         var firstLegSegments = MapToSegments(firstLegFlights);
 
         foreach (var firstLeg in firstLegSegments)
@@ -64,7 +64,7 @@ public class FlightSearchModel
                 continue;
             }
 
-            var secondLegFlights = _dal.GetFlightsFromAirportAfter(
+            var secondLegFlights = await _dal.GetFlightsFromAirportAfterAsync(
                 firstLegArriveCode, firstLeg.ArriveDateTime);
             var secondLegSegments = MapToSegments(secondLegFlights);
 
@@ -86,7 +86,7 @@ public class FlightSearchModel
                     continue;
                 }
 
-                var thirdLegFlights = _dal.GetFlightsFromAirportAfter(
+                var thirdLegFlights = await _dal.GetFlightsFromAirportAfterAsync(
                     secondLegArriveCode, secondLeg.ArriveDateTime);
                 var thirdLegSegments = MapToSegments(thirdLegFlights);
 

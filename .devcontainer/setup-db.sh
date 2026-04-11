@@ -49,6 +49,20 @@ if [ -f "$PROJECT_ROOT/create_user.sql" ]; then
   echo "   ✔ create_user.sql imported."
 fi
 
+if [ -f "$PROJECT_ROOT/create_seats.sql" ]; then
+  echo "📥 Importing create_seats.sql..."
+  mysql -h "$MYSQL_HOST" -P "$MYSQL_PORT" -u "$MYSQL_USER" -p"$MYSQL_PWD" \
+    "$DATABASE" < "$PROJECT_ROOT/create_seats.sql"
+  echo "   ✔ create_seats.sql imported."
+fi
+
+if [ -f "$PROJECT_ROOT/create_indexes.sql" ]; then
+  echo "📥 Importing create_indexes.sql..."
+  mysql -h "$MYSQL_HOST" -P "$MYSQL_PORT" -u "$MYSQL_USER" -p"$MYSQL_PWD" \
+    "$DATABASE" < "$PROJECT_ROOT/create_indexes.sql"
+  echo "   ✔ create_indexes.sql imported."
+fi
+
 echo ""
 echo "🎉 All SQL scripts imported into '${DATABASE}' successfully."
 echo "   Connect with: mysql -h ${MYSQL_HOST} -P ${MYSQL_PORT} -u ${MYSQL_USER} -p${MYSQL_PWD} ${DATABASE}"

@@ -16,13 +16,13 @@ public class FlightSearchDal
     /// Gets all flights departing from a given airport on a specific date,
     /// optionally filtered by a departure time window.
     /// </summary>
-    public DataTable GetFlightsFromAirport(string departAirport, DateTime date,
+    public async Task<DataTable> GetFlightsFromAirportAsync(string departAirport, DateTime date,
         TimeOnly? timeStart = null, TimeOnly? timeEnd = null)
     {
         var dt = new DataTable();
 
         using var connection = new MySqlConnection(_connectionString);
-        connection.Open();
+        await connection.OpenAsync();
 
         var dateFilter = "DATE(DepartDateTime) = @date";
         var airportFilter = "DepartAirport LIKE @departAirport";
@@ -58,12 +58,12 @@ public class FlightSearchDal
     /// Gets flights departing from an airport after a specific datetime.
     /// Used to find connecting flights after a previous leg arrives.
     /// </summary>
-    public DataTable GetFlightsFromAirportAfter(string departAirport, DateTime afterDateTime)
+    public async Task<DataTable> GetFlightsFromAirportAfterAsync(string departAirport, DateTime afterDateTime)
     {
         var dt = new DataTable();
 
         using var connection = new MySqlConnection(_connectionString);
-        connection.Open();
+        await connection.OpenAsync();
 
         var query = @"
             SELECT Id, DepartDateTime, ArriveDateTime, DepartAirport, ArriveAirport, FlightNumber, 'Delta' AS Airline
