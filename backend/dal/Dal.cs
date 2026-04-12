@@ -5,35 +5,36 @@ namespace dal;
 
 public class LoginDal
 {
-    private const string connectionString = "server=db;port=3306;uid=root;pwd=rootpassword;database=app";
+    private readonly string _connectionString;
 
-    public static DataTable GetAllUsers()
+    public LoginDal(string connectionString)
     {
-        var dt = new DataTable();
-        using (var connection = new MySqlConnection(connectionString))
-        {
-            connection.Open();
-            using (var da = new MySqlDataAdapter(@"select * from users;", connection))
-            {
-                da.Fill(dt);
-            }
-        }
-
-        return dt;
+        _connectionString = connectionString;
     }
 
-    public static bool InsertUser(string username, string password)
+    public async Task<bool> ValidateUserAsync(string username, string password)
+    {
+        using var connection = new MySqlConnection(_connectionString);
+        await connection.OpenAsync();
+        using var cmd = new MySqlCommand(
+            "SELECT COUNT(*) FROM users WHERE Username = @u AND Password = @p", connection);
+        cmd.Parameters.AddWithValue("@u", username);
+        cmd.Parameters.AddWithValue("@p", password);
+        return Convert.ToInt32(await cmd.ExecuteScalarAsync()) > 0;
+    }
+
+    public async Task<bool> InsertUserAsync(string username, string password)
     {
         try
         {
-            using var connection = new MySqlConnection(connectionString);
-            connection.Open();
+            using var connection = new MySqlConnection(_connectionString);
+            await connection.OpenAsync();
             using var cmd = new MySqlCommand(
                 "INSERT INTO users (Username, Password) VALUES (@username, @password)",
                 connection);
             cmd.Parameters.AddWithValue("@username", username);
             cmd.Parameters.AddWithValue("@password", password);
-            cmd.ExecuteNonQuery();
+            await cmd.ExecuteNonQueryAsync();
             return true;
         }
         catch (MySqlException ex) when (ex.Number == 1062)
@@ -41,5 +42,4 @@ public class LoginDal
             return false;
         }
     }
-
 }

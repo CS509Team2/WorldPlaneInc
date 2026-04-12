@@ -1,27 +1,23 @@
-using System.Data;
 using dal;
 
 namespace model;
 
-public static class LoginModel
+public class LoginModel
 {
-    public static bool Login(string username, string password)
+    private readonly LoginDal _dal;
+
+    public LoginModel(string connectionString)
     {
-        var dt = LoginDal.GetAllUsers();
-
-        foreach (DataRow r in dt.Rows)
-        {
-            if ((string)r["Username"] == username && (string)r["Password"] == password)
-            {
-                return true;
-            }
-        }
-
-        return false;
+        _dal = new LoginDal(connectionString);
     }
 
-    public static bool Signup(string username, string password)
+    public async Task<bool> LoginAsync(string username, string password)
     {
-        return LoginDal.InsertUser(username, password);
+        return await _dal.ValidateUserAsync(username, password);
+    }
+
+    public async Task<bool> SignupAsync(string username, string password)
+    {
+        return await _dal.InsertUserAsync(username, password);
     }
 }

@@ -34,19 +34,47 @@ mysql -h "$MYSQL_HOST" -P "$MYSQL_PORT" -u "$MYSQL_USER" -p"$MYSQL_PWD" \
   -e "CREATE DATABASE IF NOT EXISTS \`${DATABASE}\`;"
 
 # Import each SQL file
-for sql_file in "$PROJECT_ROOT"/flightdata_*.sql; do
-  filename="$(basename "$sql_file")"
-  echo "📥 Importing ${filename}..."
-  mysql -h "$MYSQL_HOST" -P "$MYSQL_PORT" -u "$MYSQL_USER" -p"$MYSQL_PWD" \
-    "$DATABASE" < "$sql_file"
-  echo "   ✔ ${filename} imported."
-done
+shopt -s nullglob
+flight_files=("$PROJECT_ROOT"/flightdata_*.sql)
+shopt -u nullglob
+
+if [ ${#flight_files[@]} -eq 0 ]; then
+  echo "⚠️  No flightdata_*.sql files found — skipping flight data import."
+else
+  for sql_file in "${flight_files[@]}"; do
+    filename="$(basename "$sql_file")"
+    echo "📥 Importing ${filename}..."
+    mysql -h "$MYSQL_HOST" -P "$MYSQL_PORT" -u "$MYSQL_USER" -p"$MYSQL_PWD" \
+      "$DATABASE" < "$sql_file"
+    echo "   ✔ ${filename} imported."
+  done
+fi
 
 if [ -f "$PROJECT_ROOT/create_user.sql" ]; then
   echo "📥 Importing create_user.sql..."
   mysql -h "$MYSQL_HOST" -P "$MYSQL_PORT" -u "$MYSQL_USER" -p"$MYSQL_PWD" \
     "$DATABASE" < "$PROJECT_ROOT/create_user.sql"
   echo "   ✔ create_user.sql imported."
+fi
+
+if [ -f "$PROJECT_ROOT/create_seats.sql" ]; then
+  echo "📥 Importing create_seats.sql..."
+  if mysql -h "$MYSQL_HOST" -P "$MYSQL_PORT" -u "$MYSQL_USER" -p"$MYSQL_PWD" \
+    "$DATABASE" < "$PROJECT_ROOT/create_seats.sql" 2>&1; then
+    echo "   ✔ create_seats.sql imported."
+  else
+    echo "   ⚠️  create_seats.sql had warnings (tables may already exist)."
+  fi
+fi
+
+if [ -f "$PROJECT_ROOT/create_indexes.sql" ]; then
+  echo "📥 Importing create_indexes.sql..."
+  if mysql -h "$MYSQL_HOST" -P "$MYSQL_PORT" -u "$MYSQL_USER" -p"$MYSQL_PWD" \
+    "$DATABASE" < "$PROJECT_ROOT/create_indexes.sql" 2>&1; then
+    echo "   ✔ create_indexes.sql imported."
+  else
+    echo "   ⚠️  create_indexes.sql had warnings (tables or indexes may not apply yet)."
+  fi
 fi
 
 echo ""
