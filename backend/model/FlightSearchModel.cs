@@ -70,6 +70,9 @@ public class FlightSearchModel
 
             foreach (var secondLeg in secondLegSegments)
             {
+                if (!LayoverLogic.IsValidConnection(firstLeg, secondLeg))
+                    continue;
+
                 var secondLegArriveCode = ExtractAirportCode(secondLeg.ArriveAirport);
 
                 if (secondLegArriveCode == firstLegArriveCode) continue;
@@ -92,6 +95,9 @@ public class FlightSearchModel
 
                 foreach (var thirdLeg in thirdLegSegments)
                 {
+                    if (!LayoverLogic.IsValidConnection(secondLeg, thirdLeg))
+                        continue;
+
                     var thirdLegArriveCode = ExtractAirportCode(thirdLeg.ArriveAirport);
 
                     if (thirdLegArriveCode == firstLegArriveCode ||
@@ -165,7 +171,9 @@ public class FlightSearchModel
                 DepartAirport = row["DepartAirport"]?.ToString() ?? "",
                 ArriveAirport = row["ArriveAirport"]?.ToString() ?? "",
                 FlightNumber = row["FlightNumber"]?.ToString() ?? "",
-                Airline = row["Airline"]?.ToString() ?? ""
+                Airline = row["Airline"]?.ToString() ?? "",
+                DepartTimeZoneId = AirportTimeZoneResolver.GetTimeZoneId(ExtractAirportCode(row["DepartAirport"].ToString() ?? "")),
+                ArriveTimeZoneId = AirportTimeZoneResolver.GetTimeZoneId(ExtractAirportCode(row["ArriveAirport"].ToString() ?? ""))
             });
         }
 

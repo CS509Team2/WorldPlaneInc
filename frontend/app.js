@@ -95,6 +95,27 @@ function formatDate(dtString) {
   return new Date(dtString).toLocaleDateString([], { month: "short", day: "numeric" });
 }
 
+function formatAirportLocalDateTime(utcDateTimeString, timeZoneId) {
+  const date = new Date(utcDateTimeString);
+
+  return new Intl.DateTimeFormat("en-US", {
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: true,
+    timeZone: timeZoneId
+  }).format(date);
+}
+
+function formatAirportLocalDate(utcDateTimeString, timeZoneId) {
+  const date = new Date(utcDateTimeString);
+
+  return new Intl.DateTimeFormat("en-US", {
+    month: "short",
+    day: "numeric",
+    timeZone: timeZoneId
+  }).format(date);
+}
+
 function extractCode(airport) {
   const match = airport.match(/\(([A-Z]{3})\)/);
   return match ? match[1] : airport.trim().toUpperCase();
@@ -346,9 +367,9 @@ function renderItineraryList(itineraries, limit) {
         <div class="card-body">
           <div class="row align-items-center">
             <div class="col-md-3">
-              <div class="fw-bold fs-5">${formatTime(firstSeg.departDateTime)}</div>
+              <div class="fw-bold fs-5">${formatAirportLocalDateTime(firstSeg.departDateTime, firstSeg.departTimeZoneId)}</div>
               <div class="small text-muted">${extractCode(firstSeg.departAirport)}</div>
-              <div class="small text-muted">${formatDate(firstSeg.departDateTime)}</div>
+              <div class="small text-muted">${formatAirportLocalDate(firstSeg.departDateTime, firstSeg.departTimeZoneId)}</div>
             </div>
             <div class="col-md-3 text-center">
               <div class="small text-muted">${formatDuration(it.totalDurationMinutes)}</div>
@@ -356,9 +377,9 @@ function renderItineraryList(itineraries, limit) {
               <div class="small text-muted">${it.stops === 0 ? "Direct" : it.stops + " stop" + (it.stops > 1 ? "s" : "")}</div>
             </div>
             <div class="col-md-3">
-              <div class="fw-bold fs-5">${formatTime(lastSeg.arriveDateTime)}</div>
+              <div class="fw-bold fs-5">${formatAirportLocalDateTime(lastSeg.arriveDateTime, lastSeg.arriveTimeZoneId)}</div>
               <div class="small text-muted">${extractCode(lastSeg.arriveAirport)}</div>
-              <div class="small text-muted">${formatDate(lastSeg.arriveDateTime)}</div>
+              <div class="small text-muted">${formatAirportLocalDate(lastSeg.arriveDateTime, lastSeg.arriveTimeZoneId)}</div>
             </div>
             <div class="col-md-3 text-end">
               <span class="badge bg-secondary mb-2">${airlines}</span><br />
@@ -394,8 +415,8 @@ function renderSegmentDetails(segments) {
   let html = '<div class="mt-2 pt-2 border-top"><small class="text-muted">Segments:</small><div class="d-flex flex-wrap gap-2 mt-1">';
   for (const s of segments) {
     html += `<span class="badge bg-light text-dark border">
-      ${s.flightNumber} (${s.airline}): ${extractCode(s.departAirport)} ${formatTime(s.departDateTime)}
-      &#8594; ${extractCode(s.arriveAirport)} ${formatTime(s.arriveDateTime)}
+      ${s.flightNumber} (${s.airline}): ${extractCode(s.departAirport)} ${formatAirportLocalDateTime(s.departDateTime, s.departTimeZoneId)}
+      &#8594; ${extractCode(s.arriveAirport)} ${formatAirportLocalDateTime(s.arriveDateTime, s.arriveTimeZoneId)}
     </span>`;
   }
   html += "</div></div>";
