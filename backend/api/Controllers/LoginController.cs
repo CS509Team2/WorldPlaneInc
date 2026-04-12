@@ -34,4 +34,16 @@ public class LoginController : ControllerBase
             return Conflict(new { message = "Username is already taken." });
         }
     }
+
+    [HttpPost("api/guestsign")]
+    public IActionResult Guestsign([FromBody] LoginRequest request) 
+    {
+        if (LoginModel.GuestSign()) 
+        {
+            return Ok(new {message = "Signing in as guest."});
+        } else 
+        {
+            return Conflict(new {message="An error has occurred"});
+        }
+    }
 }

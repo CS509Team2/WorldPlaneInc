@@ -18,6 +18,18 @@ async function signup(username, password) {
   return { ok: res.ok, status: res.status, data: await res.json() };
 }
 
+async function guestSign() {
+  var username = "guest";
+  var password = "guestPassword"
+
+  const res = await fetch(`${API_BASE_URL}/Login/api/guestsign`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ username, password }),
+  });
+  return { ok: res.ok, status: res.status, data: await res.json() };
+}
+
 function showMessage(el, text, type) {
   el.textContent = text;
   el.className = `message ${type}`;
@@ -31,10 +43,28 @@ function clearMessage(el) {
 document.addEventListener("DOMContentLoaded", () => {
   const guestLink = document.getElementById("guest-link");
   if (guestLink) {
-    guestLink.addEventListener("click", (e) => {
+    guestLink.addEventListener("click", async (e) => {
       e.preventDefault();
+      const msg = document.getElementById("msg");
+      clearMessage(msg);
+
       const username = "guest";
-      sessionStorage.setItem("username", username);
+      const password = "guestPassword";
+
+      try {
+        const result = await guestSign();
+        if (result.ok) {
+          sessionStorage.setItem("username", username);
+          showMessage(msg, "Signing in as guest...", "success");
+          setTimeout(() => (window.location.href = "home.html"), 1000);
+        } else {
+          showMessage("An error occured signing in as guest.", "error");
+        }
+      } catch {
+        showMessage("Could not connect to the server.", "error");
+      }
+
+
 
       setTimeout(() => (window.location.href = "home.html"), 1000);
     });

@@ -24,4 +24,17 @@ public static class LoginModel
     {
         return LoginDal.InsertUser(username, password);
     }
+
+    //Checks for an existing guest account, signing up if there is not one.
+    public static bool GuestSign() {
+        var dt = LoginDal.GetAllUsers();
+
+        foreach (DataRow r in dt.Rows) {
+            if ((string)r["Username"] == "guest" && (string)r["Password"] == "guestPassword") {
+                return true;
+            }
+        }
+
+        return Signup("guest","guestPassword");
+    }
 }
