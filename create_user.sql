@@ -6,4 +6,4 @@ CREATE TABLE IF NOT EXISTS `users` (
     UNIQUE KEY `Username` (`Username`)
 ) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci;
 
-INSERT INTO users VALUES (null, 'user1', '1111');
+INSERT IGNORE INTO users VALUES (null, 'user1', '1111');
