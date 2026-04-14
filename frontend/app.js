@@ -169,8 +169,52 @@ document.addEventListener("DOMContentLoaded", () => {
   initSignupPage();
   initSearchPage();
   initSeatsPage();
+<<<<<<< HEAD
   initSettingsPage();
+=======
+  initHomePage();
+>>>>>>> e2b5983 (added basic frontend to view reservations)
 });
+
+// -- Home Page --
+function initHomePage() {
+  const button = document.getElementById("reservationButton");
+  let resShown = false;
+
+  button.addEventListener("click", async (e) => {
+    e.preventDefault();
+
+    const resTable = document.getElementById("reservationTable");
+    if (!resShown) {
+      resShown = true;
+      button.innerText = "Hide Reservations";
+      resTable.innerHTML = `<style>
+                              table, th, td{border:1px solid black;}
+                            </style>
+                            <tr>
+                              <th>Departure Airport</th>
+                              <th>Arrival Airport</th>
+                              <th>Departure Date</th>
+                            </tr>
+                            <tr>
+                              <td>BOS</td>
+                              <td>MSP</td>
+                              <td>02/05/2023</td>
+                            </tr>
+                            <tr>
+                              <td>MSP</td>
+                              <td>BOS</td>
+                              <td>02/15/2023</td>
+                            </tr>`;
+    }
+    else {
+      button.innerText = "Load Reservations";
+      resTable.innerHTML = "";
+      resShown = false;
+    }
+  });
+
+}
 
 // ── Login page ──
 
