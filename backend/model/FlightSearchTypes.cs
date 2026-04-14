@@ -9,6 +9,39 @@ public class FlightSegment
     public string ArriveAirport { get; set; } = "";
     public DateTime DepartDateTime { get; set; }
     public DateTime ArriveDateTime { get; set; }
+    public string DepartTimeZoneId { get; set; } = "";
+    public string ArriveTimeZoneId { get; set; } = "";
+
+    //Use these only for display
+    public DateTime LocalDepartDateTime
+    {
+        get
+        {
+            var utcDepart = DateTime.SpecifyKind(DepartDateTime, DateTimeKind.Utc);
+
+            if (string.IsNullOrWhiteSpace(DepartTimeZoneId))
+                return utcDepart;
+
+            return TimeZoneInfo.ConvertTimeFromUtc(
+                utcDepart,
+                TimeZoneInfo.FindSystemTimeZoneById(DepartTimeZoneId));
+        }
+    }
+
+    public DateTime LocalArriveDateTime
+    {
+        get
+        {
+            var utcArrive = DateTime.SpecifyKind(ArriveDateTime, DateTimeKind.Utc);
+
+            if (string.IsNullOrWhiteSpace(ArriveTimeZoneId))
+                return utcArrive;
+
+            return TimeZoneInfo.ConvertTimeFromUtc(
+                utcArrive,
+                TimeZoneInfo.FindSystemTimeZoneById(ArriveTimeZoneId));
+        }
+    }
 }
 
 public class Itinerary
