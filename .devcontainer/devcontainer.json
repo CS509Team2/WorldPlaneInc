@@ -17,5 +17,8 @@
     }
   },
   "postCreateCommand": "sudo apt update && sudo apt-get install -y default-mysql-client",
-  "postStartCommand": "bash .devcontainer/setup-db.sh"
+  "postStartCommand": "bash .devcontainer/setup-db.sh",
+  "features": {
+    "ghcr.io/devcontainers/features/docker-outside-of-docker:1": {}
+  }
 }
