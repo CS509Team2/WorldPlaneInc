@@ -20,6 +20,14 @@ async function apiSignup(username, password) {
   return { ok: res.ok, status: res.status, data: await res.json() };
 }
 
+async function apiGuestLogin() {
+  const res = await fetch(`${API_BASE_URL}/Login/api/guest`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+  });
+  return { ok: res.ok, status: res.status, data: await res.json() };
+}
+
 async function apiSearchFlights(params) {
   const res = await fetch(`${API_BASE_URL}/Flights/search`, {
     method: "POST",
@@ -141,6 +149,28 @@ function initLoginPage() {
       showAlert(msg, "Could not connect to the server.", "error");
     }
   });
+
+  const guestLink = document.getElementById("guest-link");
+  if (guestLink) {
+    guestLink.addEventListener("click", async (e) => {
+      e.preventDefault();
+      const msg = document.getElementById("msg");
+      hideAlert(msg);
+
+      try {
+        const result = await apiGuestLogin();
+        if (result.ok) {
+          sessionStorage.setItem("username", "guest");
+          showAlert(msg, "Signing in as guest...", "success");
+          setTimeout(() => (window.location.href = "home.html"), 800);
+        } else {
+          showAlert(msg, result.data.message || "Guest login failed.", "error");
+        }
+      } catch {
+        showAlert(msg, "Could not connect to the server.", "error");
+      }
+    });
+  }
 }
 
 // ── Signup page ──

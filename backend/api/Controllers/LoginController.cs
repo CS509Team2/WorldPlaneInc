@@ -53,4 +53,24 @@ public class LoginController : ControllerBase
             return Conflict(new { message = "Username is already taken." });
         }
     }
+
+    [HttpPost("api/guest")]
+    public async Task<IActionResult> GuestLogin()
+    {
+        var connectionString = _configuration.GetConnectionString("DefaultConnection");
+        if (string.IsNullOrWhiteSpace(connectionString))
+            return StatusCode(500, "Database connection string is missing.");
+
+        var loginModel = new LoginModel(connectionString);
+
+        // Create guest account if it doesn't exist, then log in
+        await loginModel.SignupAsync("guest", "guestPassword");
+
+        if (await loginModel.LoginAsync("guest", "guestPassword"))
+        {
+            return Ok(new { message = "Welcome guest!" });
+        }
+
+        return StatusCode(500, new { message = "Could not create guest session." });
+    }
 }
