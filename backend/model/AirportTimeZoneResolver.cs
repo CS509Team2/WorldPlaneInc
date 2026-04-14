@@ -262,7 +262,7 @@ public static class AirportTimeZoneResolver
         if (AirportTimeZones.TryGetValue(normalizedCode, out var timeZoneId))
             return timeZoneId;
 
-        throw new InvalidOperationException(
-            $"Missing timezone mapping for airport code '{normalizedCode}'.");
+        Console.WriteLine($"Warning: Missing timezone mapping for airport code '{normalizedCode}'. Falling back to UTC.");
+        return "UTC";
     }
 }
