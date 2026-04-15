@@ -147,4 +147,26 @@ public class SeatDal
             throw;
         }
     }
+
+    public async Task<DataTable> GetUserReservation(string username)
+    {
+        var dt = new DataTable();
+
+        using var connection = new MySqlConnection(_connectionString);
+        await connection.OpenAsync();
+
+        var query = @"
+            SELECT *
+            FROM bookings
+            WHERE Username = @username;
+        ";
+
+        using var command = new MySqlCommand(query, connection);
+        command.Parameters.AddWithValue("@username", username);
+
+        using var adapter = new MySqlDataAdapter(command);
+        adapter.Fill(dt);
+
+        return dt;
+    }
 }

@@ -60,4 +60,20 @@ public class SeatsController : ControllerBase
 
         return Conflict(new { message = "Seat is no longer available." });
     }
+
+    [HttpGet("reservations")]
+    public async Task<IActionResult> GetUserReservation([FromQuery] string username)
+    {
+        if (string.IsNullOrWhiteSpace(username))
+            return BadRequest("username is required.");
+
+        var connectionString = _configuration.GetConnectionString("DefaultConnection");
+        if (string.IsNullOrWhiteSpace(connectionString))
+            return StatusCode(500, "Database connection string is missing.");
+
+        var seatModel = new SeatModel(connectionString);
+        var reservations = await seatModel.GetUserReservation(username.Trim());
+
+        return Ok(reservations);
+    }
 }

@@ -81,6 +81,13 @@ async function apiBookSeat(flightId, airline, seatNumber, username) {
   return { ok: res.ok, status: res.status, data: await res.json() };
 }
 
+async function apiGetUserReservations(username) {
+  const res = await fetch(
+    `${API_BASE_URL}/Seats/reservations?username=${encodeURIComponent(username)}`
+  );
+  return { ok: res.ok, status: res.status, data: await res.json() };
+}
+
 // ── Message helpers (Bootstrap alert style) ──
 
 function showAlert(el, text, type) {
@@ -187,25 +194,37 @@ function initHomePage() {
     const resTable = document.getElementById("reservationTable");
     if (!resShown) {
       resShown = true;
+
+      const reservations = await apiGetUserReservations(sessionStorage.getItem("username"));
+
+      let html = "";
+      html += `<style>
+                    table, th, td{border:1px solid black;}
+                  </style>
+                  <tr>
+                    <th>Username</th>
+                    <th>Flight Number</th>
+                    <th>Airline</th>
+                    <th>Seat</th>
+                    <th>Booked At</th>
+                  </tr>`;
+
       button.innerText = "Hide Reservations";
-      resTable.innerHTML = `<style>
-                              table, th, td{border:1px solid black;}
-                            </style>
-                            <tr>
-                              <th>Departure Airport</th>
-                              <th>Arrival Airport</th>
-                              <th>Departure Date</th>
-                            </tr>
-                            <tr>
-                              <td>BOS</td>
-                              <td>MSP</td>
-                              <td>02/05/2023</td>
-                            </tr>
-                            <tr>
-                              <td>MSP</td>
-                              <td>BOS</td>
-                              <td>02/15/2023</td>
-                            </tr>`;
+
+      for (var eachItem in reservations) {
+        var dataObj = reservations[eachItem];
+        for (var eachValue in dataObj) {
+          html += "<tr>";
+          html += `<td>${JSON.stringify(dataObj[eachValue].username)}</td>`;
+          html += `<td>${JSON.stringify(dataObj[eachValue].flightNumber)}</td>`;
+          html += `<td>${JSON.stringify(dataObj[eachValue].airline)}</td>`;
+          html += `<td>${JSON.stringify(dataObj[eachValue].seat)}</td>`;
+          html += `<td>${JSON.stringify(dataObj[eachValue].bookedAt)}</td>`;
+          html += "</tr>";
+        }
+      }
+
+      resTable.innerHTML = html;
     }
     else {
       button.innerText = "Load Reservations";
