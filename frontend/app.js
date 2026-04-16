@@ -188,6 +188,11 @@ function initHomePage() {
   const button = document.getElementById("reservationButton");
   let resShown = false;
 
+  if (sessionStorage.getItem("username") === "guest") {
+    button.disabled = true;
+    button.innerText = "log in to view your reservations";
+  }
+
   button.addEventListener("click", async (e) => {
     e.preventDefault();
 
@@ -199,14 +204,32 @@ function initHomePage() {
 
       let html = "";
       html += `<style>
-                    table, th, td{border:1px solid black;}
+                    table {
+                      border-collapse: collapse;
+                      width: 100%;
+                    }
+                    th, td {
+                      text-align: left;
+                      padding: 8px;
+                    }
+                    tr:nth-child(even) {
+                      background-color: #D3D3D3;
+                    }
+                    tr {
+                      border: 1px solid #ddd;
+                    }
+                    th {
+                      border: 1px solid #000;
+                    }
                   </style>
                   <tr>
-                    <th>Username</th>
-                    <th>Flight Number</th>
+                    <th>Departure Airport</th>
+                    <th>Departure Date and Time</th>
+                    <th>Arrival Airport</th>
+                    <th>Arrival Date and Time</th>
                     <th>Airline</th>
+                    <th>Flight Number</th>
                     <th>Seat</th>
-                    <th>Booked At</th>
                   </tr>`;
 
       button.innerText = "Hide Reservations";
@@ -215,11 +238,13 @@ function initHomePage() {
         var dataObj = reservations[eachItem];
         for (var eachValue in dataObj) {
           html += "<tr>";
-          html += `<td>${JSON.stringify(dataObj[eachValue].username)}</td>`;
-          html += `<td>${JSON.stringify(dataObj[eachValue].flightNumber)}</td>`;
-          html += `<td>${JSON.stringify(dataObj[eachValue].airline)}</td>`;
-          html += `<td>${JSON.stringify(dataObj[eachValue].seat)}</td>`;
-          html += `<td>${JSON.stringify(dataObj[eachValue].bookedAt)}</td>`;
+          html += `<td>${JSON.stringify(dataObj[eachValue].departureAirport).replace(/"/g, '')}</td>`;
+          html += `<td>${JSON.stringify(dataObj[eachValue].departureDateTime).replace(/"/g, '')}</td>`;
+          html += `<td>${JSON.stringify(dataObj[eachValue].arrivalAirport).replace(/"/g, '')}</td>`;
+          html += `<td>${JSON.stringify(dataObj[eachValue].arrivalDateTime).replace(/"/g, '')}</td>`;
+          html += `<td>${JSON.stringify(dataObj[eachValue].airline).replace(/"/g, '')}</td>`;
+          html += `<td>${JSON.stringify(dataObj[eachValue].flightNumber).replace(/"/g, '')}</td>`;
+          html += `<td>${JSON.stringify(dataObj[eachValue].seat).replace(/"/g, '')}</td>`;
           html += "</tr>";
         }
       }

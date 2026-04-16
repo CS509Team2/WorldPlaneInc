@@ -158,11 +158,52 @@ public class SeatDal
         var query = @"
             SELECT *
             FROM bookings
-            WHERE Username = @username;
-        ";
+            WHERE Username = @username;";
 
         using var command = new MySqlCommand(query, connection);
         command.Parameters.AddWithValue("@username", username);
+
+        using var adapter = new MySqlDataAdapter(command);
+        adapter.Fill(dt);
+
+        return dt;
+    }
+
+    public async Task<DataTable> GetDeltaFlight(int flightID)
+    {
+        var dt = new DataTable();
+
+        using var connection = new MySqlConnection(_connectionString);
+        await connection.OpenAsync();
+
+        var query = @"
+            SELECT *
+            FROM deltas
+            WHERE Id = @id;";
+
+        using var command = new MySqlCommand(query, connection);
+        command.Parameters.AddWithValue("@id", flightID);
+
+        using var adapter = new MySqlDataAdapter(command);
+        adapter.Fill(dt);
+
+        return dt;
+    }
+
+    public async Task<DataTable> GetSouthwestFlight(int flightID)
+    {
+        var dt = new DataTable();
+
+        using var connection = new MySqlConnection(_connectionString);
+        await connection.OpenAsync();
+
+        var query = @"
+            SELECT *
+            FROM southwests
+            WHERE Id = @id;";
+
+        using var command = new MySqlCommand(query, connection);
+        command.Parameters.AddWithValue("@id", flightID);
 
         using var adapter = new MySqlDataAdapter(command);
         adapter.Fill(dt);
