@@ -12,7 +12,7 @@ public class SeatDal
         _connectionString = connectionString;
     }
 
-    public async Task<DataTable> GetSeatsForFlightAsync(string flightNumber, string airline)
+    public async Task<DataTable> GetSeatsForFlightAsync(int flightId, string airline)
     {
         var dt = new DataTable();
 
@@ -20,14 +20,14 @@ public class SeatDal
         await connection.OpenAsync();
 
         var query = @"
-            SELECT Id, FlightNumber, Airline, SeatNumber, SeatClass, IsAvailable, Price
+            SELECT Id, FlightId, Airline, SeatNumber, SeatClass, IsAvailable, Price
             FROM seats
-            WHERE FlightNumber = @flightNumber AND Airline = @airline
+            WHERE FlightId = @flightId AND Airline = @airline
             ORDER BY SeatNumber;
         ";
 
         using var command = new MySqlCommand(query, connection);
-        command.Parameters.AddWithValue("@flightNumber", flightNumber);
+        command.Parameters.AddWithValue("@flightId", flightId);
         command.Parameters.AddWithValue("@airline", airline);
 
         using var adapter = new MySqlDataAdapter(command);
@@ -41,14 +41,14 @@ public class SeatDal
     /// Standard narrow-body: rows 1-30, columns A-F.
     /// Rows 1-2 = First, 3-6 = Business, 7-30 = Economy.
     /// </summary>
-    public async Task EnsureSeatsExistAsync(string flightNumber, string airline)
+    public async Task EnsureSeatsExistAsync(int flightId, string airline)
     {
         using var connection = new MySqlConnection(_connectionString);
         await connection.OpenAsync();
 
         using var checkCmd = new MySqlCommand(
-            "SELECT COUNT(*) FROM seats WHERE FlightNumber = @fn AND Airline = @al", connection);
-        checkCmd.Parameters.AddWithValue("@fn", flightNumber);
+            "SELECT COUNT(*) FROM seats WHERE FlightId = @fn AND Airline = @al", connection);
+        checkCmd.Parameters.AddWithValue("@fn", flightId);
         checkCmd.Parameters.AddWithValue("@al", airline);
         var count = Convert.ToInt32(await checkCmd.ExecuteScalarAsync());
 
@@ -75,9 +75,9 @@ public class SeatDal
                     bool available = rng.NextDouble() > 0.2;
 
                     using var cmd = new MySqlCommand(@"
-                        INSERT IGNORE INTO seats (FlightNumber, Airline, SeatNumber, SeatClass, IsAvailable, Price)
+                        INSERT IGNORE INTO seats (FlightId, Airline, SeatNumber, SeatClass, IsAvailable, Price)
                         VALUES (@fn, @al, @sn, @sc, @av, @pr)", connection, (MySqlTransaction)transaction);
-                    cmd.Parameters.AddWithValue("@fn", flightNumber);
+                    cmd.Parameters.AddWithValue("@fn", flightId);
                     cmd.Parameters.AddWithValue("@al", airline);
                     cmd.Parameters.AddWithValue("@sn", seatNumber);
                     cmd.Parameters.AddWithValue("@sc", seatClass);
@@ -96,7 +96,7 @@ public class SeatDal
         }
     }
 
-    public async Task<bool> BookSeatAsync(string flightNumber, string airline, string seatNumber, string username)
+    public async Task<bool> BookSeatAsync(int flightId, string airline, string seatNumber, string username)
     {
         using var connection = new MySqlConnection(_connectionString);
         await connection.OpenAsync();
@@ -106,9 +106,9 @@ public class SeatDal
         {
             using var checkCmd = new MySqlCommand(@"
                 SELECT IsAvailable FROM seats
-                WHERE FlightNumber = @fn AND Airline = @al AND SeatNumber = @sn
+                WHERE FlightId = @fn AND Airline = @al AND SeatNumber = @sn
                 FOR UPDATE", connection, (MySqlTransaction)transaction);
-            checkCmd.Parameters.AddWithValue("@fn", flightNumber);
+            checkCmd.Parameters.AddWithValue("@fn", flightId);
             checkCmd.Parameters.AddWithValue("@al", airline);
             checkCmd.Parameters.AddWithValue("@sn", seatNumber);
 
@@ -121,19 +121,19 @@ public class SeatDal
 
             using var updateCmd = new MySqlCommand(@"
                 UPDATE seats SET IsAvailable = FALSE
-                WHERE FlightNumber = @fn AND Airline = @al AND SeatNumber = @sn",
+                WHERE FlightId = @fn AND Airline = @al AND SeatNumber = @sn",
                 connection, (MySqlTransaction)transaction);
-            updateCmd.Parameters.AddWithValue("@fn", flightNumber);
+            updateCmd.Parameters.AddWithValue("@fn", flightId);
             updateCmd.Parameters.AddWithValue("@al", airline);
             updateCmd.Parameters.AddWithValue("@sn", seatNumber);
             await updateCmd.ExecuteNonQueryAsync();
 
             using var bookCmd = new MySqlCommand(@"
-                INSERT INTO bookings (Username, FlightNumber, Airline, SeatNumber)
+                INSERT INTO bookings (Username, FlightId, Airline, SeatNumber)
                 VALUES (@user, @fn, @al, @sn)",
                 connection, (MySqlTransaction)transaction);
             bookCmd.Parameters.AddWithValue("@user", username);
-            bookCmd.Parameters.AddWithValue("@fn", flightNumber);
+            bookCmd.Parameters.AddWithValue("@fn", flightId);
             bookCmd.Parameters.AddWithValue("@al", airline);
             bookCmd.Parameters.AddWithValue("@sn", seatNumber);
             await bookCmd.ExecuteNonQueryAsync();

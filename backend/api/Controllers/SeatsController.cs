@@ -15,10 +15,10 @@ public class SeatsController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<IActionResult> GetSeats([FromQuery] string flightNumber, [FromQuery] string airline)
+    public async Task<IActionResult> GetSeats([FromQuery] int flightId, [FromQuery] string airline)
     {
-        if (string.IsNullOrWhiteSpace(flightNumber))
-            return BadRequest("flightNumber is required.");
+        if (flightId <= 0)
+            return BadRequest("flightId is required.");
         if (string.IsNullOrWhiteSpace(airline))
             return BadRequest("airline is required.");
 
@@ -27,7 +27,7 @@ public class SeatsController : ControllerBase
             return StatusCode(500, "Database connection string is missing.");
 
         var seatModel = new SeatModel(connectionString);
-        var seats = await seatModel.GetSeatMapAsync(flightNumber.Trim(), airline.Trim());
+        var seats = await seatModel.GetSeatMapAsync(flightId, airline.Trim());
 
         return Ok(seats);
     }
@@ -35,8 +35,8 @@ public class SeatsController : ControllerBase
     [HttpPost("book")]
     public async Task<IActionResult> BookSeat([FromBody] BookingRequest request)
     {
-        if (string.IsNullOrWhiteSpace(request.FlightNumber))
-            return BadRequest(new { message = "FlightNumber is required." });
+        if (request.FlightId <= 0)
+            return BadRequest(new { message = "FlightId is required." });
         if (string.IsNullOrWhiteSpace(request.Airline))
             return BadRequest(new { message = "Airline is required." });
         if (string.IsNullOrWhiteSpace(request.SeatNumber))
@@ -50,7 +50,7 @@ public class SeatsController : ControllerBase
 
         var seatModel = new SeatModel(connectionString);
         var success = await seatModel.ReserveSeatAsync(
-            request.FlightNumber.Trim(),
+            request.FlightId,
             request.Airline.Trim(),
             request.SeatNumber.Trim(),
             request.Username.Trim());
