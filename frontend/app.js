@@ -37,18 +37,18 @@ async function apiSearchFlights(params) {
   return { ok: res.ok, status: res.status, data: await res.json() };
 }
 
-async function apiGetSeats(flightNumber, airline) {
+async function apiGetSeats(flightId, airline) {
   const res = await fetch(
-    `${API_BASE_URL}/Seats?flightNumber=${encodeURIComponent(flightNumber)}&airline=${encodeURIComponent(airline)}`
+    `${API_BASE_URL}/Seats?flightId=${encodeURIComponent(flightId)}&airline=${encodeURIComponent(airline)}`
   );
   return { ok: res.ok, status: res.status, data: await res.json() };
 }
 
-async function apiBookSeat(flightNumber, airline, seatNumber, username) {
+async function apiBookSeat(flightId, airline, seatNumber, username) {
   const res = await fetch(`${API_BASE_URL}/Seats/book`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ flightNumber, airline, seatNumber, username }),
+    body: JSON.stringify({ flightId, airline, seatNumber, username }),
   });
   return { ok: res.ok, status: res.status, data: await res.json() };
 }
@@ -414,7 +414,7 @@ function renderItineraryList(itineraries, limit) {
             <div class="col-md-3 text-end">
               <span class="badge bg-secondary mb-2">${airlines}</span><br />
               <button class="btn btn-sm btn-wpi select-flight-btn"
-                data-flight='${JSON.stringify({ flightNumber: firstSeg.flightNumber, airline: firstSeg.airline })}'>
+                data-flight='${JSON.stringify({ flightId: firstSeg.id, flightNumber: firstSeg.flightNumber, airline: firstSeg.airline })}'>
                 Select Seat
               </button>
             </div>
@@ -476,21 +476,21 @@ function initSeatsPage() {
   document.getElementById("summary-flight").textContent = flight.flightNumber;
   document.getElementById("summary-airline").textContent = flight.airline;
 
-  loadSeatMap(flight.flightNumber, flight.airline);
+  loadSeatMap(flight.flightId, flight.airline);
 
   document.getElementById("confirm-seat-btn").addEventListener("click", async () => {
     if (!selectedSeat) return;
-    await bookSelectedSeat(flight.flightNumber, flight.airline, username);
+    await bookSelectedSeat(flight.flightId, flight.flightNumber, flight.airline, username);
   });
 }
 
-async function loadSeatMap(flightNumber, airline) {
+async function loadSeatMap(flightId, airline) {
   const loading = document.getElementById("seat-loading");
   const errorEl = document.getElementById("seat-error");
   const container = document.getElementById("seat-map-container");
 
   try {
-    const result = await apiGetSeats(flightNumber, airline);
+    const result = await apiGetSeats(flightId, airline);
     loading.classList.add("d-none");
 
     if (!result.ok) {
@@ -605,7 +605,7 @@ function updateSeatSummary() {
   }
 }
 
-async function bookSelectedSeat(flightNumber, airline, username) {
+async function bookSelectedSeat(flightId, flightNumber, airline, username) {
   const confirmBtn = document.getElementById("confirm-seat-btn");
   const spinner = document.getElementById("booking-spinner");
   const errorEl = document.getElementById("booking-error");
@@ -615,7 +615,7 @@ async function bookSelectedSeat(flightNumber, airline, username) {
   errorEl.classList.add("d-none");
 
   try {
-    const result = await apiBookSeat(flightNumber, airline, selectedSeat, username);
+    const result = await apiBookSeat(flightId, airline, selectedSeat, username);
     spinner.classList.add("d-none");
 
     if (result.ok) {
