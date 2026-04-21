@@ -20,4 +20,17 @@ public class LoginModel
     {
         return await _dal.InsertUserAsync(username, password);
     }
+
+    public async Task<(bool success, string errorCode)> UpdateSettingsAsync(
+        string currentUsername,
+        string newUsername,
+        string? currentPassword,
+        string? newPassword)
+    {
+        return await _dal.UpdateUserSettingsAsync(
+            currentUsername,
+            newUsername,
+            currentPassword,
+            newPassword);
+    }
 }

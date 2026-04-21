@@ -28,6 +28,34 @@ async function apiGuestLogin() {
   return { ok: res.ok, status: res.status, data: await res.json() };
 }
 
+async function apiUpdateSettings(currentUsername, newUsername, currentPassword, newPassword) {
+  const res = await fetch(`${API_BASE_URL}/Login/api/settings/update`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      currentUsername,
+      newUsername,
+      currentPassword,
+      newPassword,
+    }),
+  });
+
+  let data = null;
+  const contentType = res.headers.get("content-type") || "";
+  if (contentType.includes("application/json")) {
+    try {
+      data = await res.json();
+    } catch {
+      data = null;
+    }
+  } else {
+    const text = await res.text();
+    data = text ? { message: text } : null;
+  }
+
+  return { ok: res.ok, status: res.status, data };
+}
+
 async function apiSearchFlights(params) {
   const res = await fetch(`${API_BASE_URL}/Flights/search`, {
     method: "POST",
@@ -75,7 +103,12 @@ function requireAuth() {
     return null;
   }
   const navUser = document.getElementById("nav-username");
-  if (navUser) navUser.textContent = username;
+  if (navUser) {
+    navUser.textContent = username;
+    if (navUser.tagName === "A") {
+      navUser.setAttribute("href", username === "guest" ? "#" : "settings.html");
+    }
+  }
   const logoutLink = document.getElementById("logout-link");
   if (logoutLink) {
     logoutLink.addEventListener("click", function (e) {
@@ -136,6 +169,7 @@ document.addEventListener("DOMContentLoaded", () => {
   initSignupPage();
   initSearchPage();
   initSeatsPage();
+  initSettingsPage();
 });
 
 // ── Login page ──
@@ -451,6 +485,171 @@ function renderSegmentDetails(segments) {
   }
   html += "</div></div>";
   return html;
+}
+
+// ── Settings page ──
+
+function initSettingsPage() {
+  const usernameInput = document.getElementById("settings-username");
+  if (!usernameInput) return;
+
+  const username = requireAuth();
+  if (!username) return;
+
+  const msg = document.getElementById("settings-msg");
+  const resetBtn = document.getElementById("settings-reset-btn");
+  const saveBtn = document.getElementById("settings-save-btn");
+  const openPasswordModalBtn = document.getElementById("open-password-modal-btn");
+  const passwordButtonWrap = document.getElementById("password-button-wrap");
+  const passwordInputWrap = document.getElementById("password-input-wrap");
+  const passwordInput = document.getElementById("settings-password");
+  const verifyPasswordInput = document.getElementById("verify-password-input");
+  const verifyPasswordEnterBtn = document.getElementById("verify-password-enter-btn");
+  const verifyPasswordError = document.getElementById("verify-password-error");
+  const verifyPasswordModalEl = document.getElementById("verifyPasswordModal");
+  const settingsSidebar = document.getElementById("settings-sidebar");
+  const generalSection = document.getElementById("settings-general-section");
+
+  let originalUsername = username;
+  let verifiedCurrentPassword = null;
+
+  usernameInput.value = originalUsername;
+
+  if (username === "guest") {
+    if (settingsSidebar) {
+      settingsSidebar.querySelectorAll("button").forEach((btn) => {
+        btn.disabled = true;
+      });
+    }
+
+    usernameInput.disabled = true;
+    openPasswordModalBtn.disabled = true;
+    resetBtn.disabled = true;
+    saveBtn.disabled = true;
+
+    msg.textContent = "Guest accounts cannot edit account settings. Please sign in with a registered account.";
+    msg.className = "alert alert-warning";
+
+    if (generalSection) {
+      generalSection.classList.add("opacity-75");
+    }
+
+    return;
+  }
+
+  const verifyPasswordModal = bootstrap.Modal.getOrCreateInstance(verifyPasswordModalEl);
+
+  verifyPasswordEnterBtn.addEventListener("click", async () => {
+    const enteredPassword = verifyPasswordInput.value;
+
+    verifyPasswordError.classList.add("d-none");
+    verifyPasswordError.textContent = "Incorrect password.";
+
+    if (!enteredPassword) {
+      verifyPasswordError.textContent = "Please enter your password.";
+      verifyPasswordError.classList.remove("d-none");
+      return;
+    }
+
+    verifyPasswordEnterBtn.disabled = true;
+
+    try {
+      const result = await apiLogin(originalUsername, enteredPassword);
+      if (result.ok) {
+        verifiedCurrentPassword = enteredPassword;
+        passwordInput.value = enteredPassword;
+        passwordButtonWrap.classList.add("d-none");
+        passwordInputWrap.classList.remove("d-none");
+        verifyPasswordInput.value = "";
+        verifyPasswordError.classList.add("d-none");
+        verifyPasswordModal.hide();
+      } else {
+        verifyPasswordError.textContent = "Incorrect password.";
+        verifyPasswordError.classList.remove("d-none");
+      }
+    } catch {
+      verifyPasswordError.textContent = "Could not verify password.";
+      verifyPasswordError.classList.remove("d-none");
+    } finally {
+      verifyPasswordEnterBtn.disabled = false;
+    }
+  });
+
+  verifyPasswordModalEl.addEventListener("hidden.bs.modal", () => {
+    verifyPasswordInput.value = "";
+    verifyPasswordError.classList.add("d-none");
+    verifyPasswordError.textContent = "Incorrect password.";
+  });
+
+  openPasswordModalBtn.addEventListener("click", () => {
+    verifyPasswordError.classList.add("d-none");
+    verifyPasswordInput.value = "";
+  });
+
+  resetBtn.addEventListener("click", () => {
+    usernameInput.value = originalUsername;
+    passwordInput.value = "";
+    verifiedCurrentPassword = null;
+    passwordInputWrap.classList.add("d-none");
+    passwordButtonWrap.classList.remove("d-none");
+    msg.className = "alert d-none";
+    msg.textContent = "";
+  });
+
+  saveBtn.addEventListener("click", async () => {
+    const newUsername = usernameInput.value.trim();
+
+    if (!newUsername) {
+      msg.textContent = "Username cannot be empty.";
+      msg.className = "alert alert-danger";
+      return;
+    }
+
+    let currentPassword = null;
+    let newPassword = null;
+
+    if (!passwordInputWrap.classList.contains("d-none")) {
+      newPassword = passwordInput.value;
+      currentPassword = verifiedCurrentPassword;
+
+      if (!newPassword) {
+        msg.textContent = "Password cannot be empty once password edit is enabled.";
+        msg.className = "alert alert-danger";
+        return;
+      }
+    }
+
+    saveBtn.disabled = true;
+    resetBtn.disabled = true;
+
+    try {
+      const result = await apiUpdateSettings(originalUsername, newUsername, currentPassword, newPassword);
+
+      if (result.ok) {
+        originalUsername = newUsername;
+        sessionStorage.setItem("username", newUsername);
+
+        if (newPassword) {
+          verifiedCurrentPassword = newPassword;
+        }
+
+        const navUser = document.getElementById("nav-username");
+        if (navUser) navUser.textContent = newUsername;
+
+        msg.textContent = "Settings saved successfully.";
+        msg.className = "alert alert-success";
+      } else {
+        msg.textContent = result.data?.message || "Could not save settings.";
+        msg.className = "alert alert-danger";
+      }
+    } catch {
+      msg.textContent = "Could not connect to the server.";
+      msg.className = "alert alert-danger";
+    } finally {
+      saveBtn.disabled = false;
+      resetBtn.disabled = false;
+    }
+  });
 }
 
 // ── Seats page ──

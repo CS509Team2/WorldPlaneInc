@@ -109,3 +109,17 @@
   color: #fff;
   padding: 4rem 0;
 }
+
+.settings-side-card {
+  overflow: hidden;
+}
+
+#settings-sidebar .list-group-item {
+  border: 0;
+  padding: 0.9rem 1rem;
+  font-weight: 600;
+}
+
+#settings-sidebar .list-group-item.active {
+  background: var(--wpi-gradient);
+}
