@@ -55,12 +55,14 @@ public class SeatModel
     {
         public int Id { get; set; }
         public string DepartureAirport { get; set; } = "";
-        public string DepartureDateTime { get; set; } = "";
+        public DateTime DepartureDateTime { get; set; }
         public string ArrivalAirport { get; set; } = "";
-        public string ArrivalDateTime { get; set; } = "";
+        public DateTime ArrivalDateTime { get; set; }
         public string Airline { get; set; } = "";
         public string FlightNumber { get; set; } = "";
         public string Seat { get; set; } = "";
+        public string ArriveTimeZoneId { get; set; } = "";
+        public string DepartTimeZoneId { get; set; } = "";
     }
 
     public async Task<List<Reservation>> GetUserReservation(string username)
@@ -73,26 +75,14 @@ public class SeatModel
         {
             if (row["Airline"]?.ToString() == "Delta")
             {
-                var flightData = await _dal.GetDeltaFlight(Convert.ToInt32(row["FlightNumber"]));
+                var flightData = await _dal.GetDeltaFlight(Convert.ToInt32(row["FlightID"]));
                 reservations.Add(createReservation(row, flightData.Rows[0]));
             }
             else if (row["Airline"]?.ToString() == "Southwest")
             {
-                var flightData = await _dal.GetSouthwestFlight(Convert.ToInt32(row["FlightNumber"]));
+                var flightData = await _dal.GetSouthwestFlight(Convert.ToInt32(row["FlightID"]));
                 reservations.Add(createReservation(row, flightData.Rows[0]));
             }
-
-            /*reservations.Add(new Reservation
-            {
-                Id = Convert.ToInt32(row["Id"]),
-                DepartureAirport = flightData["DepartAirport"]?.ToString() ?? "",
-                DepartureDateTime = flightData["DepartDateTime"]?.ToString() ?? "",
-                ArrivalAirport = flightData["ArriveAirport"]?.ToString() ?? "",
-                ArrivalDateTime = flightData["ArriveDateTime"]?.ToString() ?? "",
-                Airline = row["Airline"]?.ToString() ?? "",
-                FlightNumber = flightData["FlightNumber"]?.ToString() ?? "",
-                Seat = row["SeatNumber"]?.ToString() ?? ""
-            });*/
         }
 
         return reservations;
@@ -101,15 +91,28 @@ public class SeatModel
     private Reservation createReservation(DataRow row, DataRow flightData)
     {
         return new Reservation
-            {
-                Id = Convert.ToInt32(row["Id"]),
-                DepartureAirport = flightData["DepartAirport"]?.ToString() ?? "",
-                DepartureDateTime = flightData["DepartDateTime"]?.ToString() ?? "",
-                ArrivalAirport = flightData["ArriveAirport"]?.ToString() ?? "",
-                ArrivalDateTime = flightData["ArriveDateTime"]?.ToString() ?? "",
-                Airline = row["Airline"]?.ToString() ?? "",
-                FlightNumber = flightData["FlightNumber"]?.ToString() ?? "",
-                Seat = row["SeatNumber"]?.ToString() ?? ""
-            };
+        {
+            Id = Convert.ToInt32(row["Id"]),
+            DepartureAirport = flightData["DepartAirport"]?.ToString() ?? "",
+            DepartureDateTime = Convert.ToDateTime(flightData["DepartDateTime"]),
+            ArrivalAirport = flightData["ArriveAirport"]?.ToString() ?? "",
+            ArrivalDateTime = Convert.ToDateTime(flightData["ArriveDateTime"]),
+            Airline = row["Airline"]?.ToString() ?? "",
+            FlightNumber = flightData["FlightNumber"]?.ToString() ?? "",
+            Seat = row["SeatNumber"]?.ToString() ?? "",
+            DepartTimeZoneId = AirportTimeZoneResolver.GetTimeZoneId(ExtractAirportCode(flightData["DepartAirport"]?.ToString() ?? "")),
+            ArriveTimeZoneId = AirportTimeZoneResolver.GetTimeZoneId(ExtractAirportCode(flightData["ArriveAirport"]?.ToString() ?? ""))
+        };
+    }
+
+    private static string ExtractAirportCode(string airport)
+    {
+        var openParen = airport.LastIndexOf('(');
+        var closeParen = airport.LastIndexOf(')');
+
+        if (openParen >= 0 && closeParen > openParen)
+            return airport.Substring(openParen + 1, closeParen - openParen - 1).Trim().ToUpper();
+
+        return airport.Trim().ToUpper();
     }
 }

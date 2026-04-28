@@ -47,7 +47,7 @@ public class FlightSearchModel
     {
         var itineraries = new List<Itinerary>();
 
-        var firstLegFlights = await _dal.GetFlightsFromAirportAsync(origin, date, departTimeStart, departTimeEnd);
+        var firstLegFlights = await _dal.GetFlightsFromAirportAsync(ExtractAirportCode(origin), date, departTimeStart, departTimeEnd);
         var firstLegSegments = MapToSegments(firstLegFlights);
 
         foreach (var firstLeg in firstLegSegments)

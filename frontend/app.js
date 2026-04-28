@@ -189,8 +189,8 @@ function initHomePage() {
   let resShown = false;
 
   if (sessionStorage.getItem("username") === "guest") {
-    button.disabled = true;
-    button.innerText = "log in to view your reservations";
+    const resDiv = document.getElementById("reservationDiv");
+    resDiv.style.display = "none";
   }
 
   button.addEventListener("click", async (e) => {
@@ -199,11 +199,17 @@ function initHomePage() {
     const resTable = document.getElementById("reservationTable");
     if (!resShown) {
       resShown = true;
+      button.innerText = "Hide Reservations";
 
       const reservations = await apiGetUserReservations(sessionStorage.getItem("username"));
 
-      let html = "";
-      html += `<style>
+      if (JSON.stringify(reservations.data) === "[]") {
+        resTable.innerHTML = "You do not have any reservations.";
+      }
+      else {
+
+        let html = "";
+        html += `<style>
                     table {
                       border-collapse: collapse;
                       width: 100%;
@@ -232,24 +238,26 @@ function initHomePage() {
                     <th>Seat</th>
                   </tr>`;
 
-      button.innerText = "Hide Reservations";
+        for (var eachItem in reservations) {
+          var dataObj = reservations[eachItem];
+          for (var eachValue in dataObj) {
+            html += "<tr>";
+            html += `<td>${JSON.stringify(dataObj[eachValue].departureAirport).replace(/"/g, '')}</td>`;
+            html += `<td>${formatAirportLocalDate(JSON.stringify(dataObj[eachValue].departureDateTime).replace(/"/g, ''), JSON.stringify(dataObj[eachValue].departTimeZoneId).replace(/"/g, '')) + " " +
+              formatAirportLocalDateTime(JSON.stringify(dataObj[eachValue].departureDateTime).replace(/"/g, ''), JSON.stringify(dataObj[eachValue].departTimeZoneId).replace(/"/g, ''))}</td>`;
 
-      for (var eachItem in reservations) {
-        var dataObj = reservations[eachItem];
-        for (var eachValue in dataObj) {
-          html += "<tr>";
-          html += `<td>${JSON.stringify(dataObj[eachValue].departureAirport).replace(/"/g, '')}</td>`;
-          html += `<td>${JSON.stringify(dataObj[eachValue].departureDateTime).replace(/"/g, '')}</td>`;
-          html += `<td>${JSON.stringify(dataObj[eachValue].arrivalAirport).replace(/"/g, '')}</td>`;
-          html += `<td>${JSON.stringify(dataObj[eachValue].arrivalDateTime).replace(/"/g, '')}</td>`;
-          html += `<td>${JSON.stringify(dataObj[eachValue].airline).replace(/"/g, '')}</td>`;
-          html += `<td>${JSON.stringify(dataObj[eachValue].flightNumber).replace(/"/g, '')}</td>`;
-          html += `<td>${JSON.stringify(dataObj[eachValue].seat).replace(/"/g, '')}</td>`;
-          html += "</tr>";
+            html += `<td>${JSON.stringify(dataObj[eachValue].arrivalAirport).replace(/"/g, '')}</td>`;
+            html += `<td>${formatAirportLocalDate(JSON.stringify(dataObj[eachValue].arrivalDateTime).replace(/"/g, ''), JSON.stringify(dataObj[eachValue].arriveTimeZoneId).replace(/"/g, '')) + " " +
+              formatAirportLocalDateTime(JSON.stringify(dataObj[eachValue].arrivalDateTime).replace(/"/g, ''), JSON.stringify(dataObj[eachValue].arriveTimeZoneId).replace(/"/g, ''))}</td>`;
+            html += `<td>${JSON.stringify(dataObj[eachValue].airline).replace(/"/g, '')}</td>`;
+            html += `<td>${JSON.stringify(dataObj[eachValue].flightNumber).replace(/"/g, '')}</td>`;
+            html += `<td>${JSON.stringify(dataObj[eachValue].seat).replace(/"/g, '')}</td>`;
+            html += "</tr>";
+          }
         }
-      }
 
-      resTable.innerHTML = html;
+        resTable.innerHTML = html;
+      }
     }
     else {
       button.innerText = "Load Reservations";
