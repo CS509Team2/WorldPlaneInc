@@ -164,6 +164,17 @@ function formatAirportLocalDate(utcDateTimeString, timeZoneId) {
   }).format(date);
 }
 
+function formatAirportLocalDateWithYear(utcDateTimeString, timeZoneId) {
+  const date = new Date(utcDateTimeString);
+
+  return new Intl.DateTimeFormat("en-US", {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+    timeZone: timeZoneId
+  }).format(date);
+}
+
 function extractCode(airport) {
   const match = airport.match(/\(([A-Z]{3})\)/);
   return match ? match[1] : airport.trim().toUpperCase();
@@ -243,11 +254,11 @@ function initHomePage() {
           for (var eachValue in dataObj) {
             html += "<tr>";
             html += `<td>${JSON.stringify(dataObj[eachValue].departureAirport).replace(/"/g, '')}</td>`;
-            html += `<td>${formatAirportLocalDate(JSON.stringify(dataObj[eachValue].departureDateTime).replace(/"/g, ''), JSON.stringify(dataObj[eachValue].departTimeZoneId).replace(/"/g, '')) + " " +
+            html += `<td>${formatAirportLocalDateWithYear(JSON.stringify(dataObj[eachValue].departureDateTime).replace(/"/g, ''), JSON.stringify(dataObj[eachValue].departTimeZoneId).replace(/"/g, '')) + " " +
               formatAirportLocalDateTime(JSON.stringify(dataObj[eachValue].departureDateTime).replace(/"/g, ''), JSON.stringify(dataObj[eachValue].departTimeZoneId).replace(/"/g, ''))}</td>`;
 
             html += `<td>${JSON.stringify(dataObj[eachValue].arrivalAirport).replace(/"/g, '')}</td>`;
-            html += `<td>${formatAirportLocalDate(JSON.stringify(dataObj[eachValue].arrivalDateTime).replace(/"/g, ''), JSON.stringify(dataObj[eachValue].arriveTimeZoneId).replace(/"/g, '')) + " " +
+            html += `<td>${formatAirportLocalDateWithYear(JSON.stringify(dataObj[eachValue].arrivalDateTime).replace(/"/g, ''), JSON.stringify(dataObj[eachValue].arriveTimeZoneId).replace(/"/g, '')) + " " +
               formatAirportLocalDateTime(JSON.stringify(dataObj[eachValue].arrivalDateTime).replace(/"/g, ''), JSON.stringify(dataObj[eachValue].arriveTimeZoneId).replace(/"/g, ''))}</td>`;
             html += `<td>${JSON.stringify(dataObj[eachValue].airline).replace(/"/g, '')}</td>`;
             html += `<td>${JSON.stringify(dataObj[eachValue].flightNumber).replace(/"/g, '')}</td>`;
