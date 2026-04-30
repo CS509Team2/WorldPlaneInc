@@ -2,13 +2,13 @@ using dal;
 
 namespace model;
 
-public class LoginModel
+public class LoginModel : ILoginModel
 {
-    private readonly LoginDal _dal;
+    private readonly ILoginDal _dal;
 
-    public LoginModel(string connectionString)
+    public LoginModel(ILoginDal dal)
     {
-        _dal = new LoginDal(connectionString);
+        _dal = dal;
     }
 
     public async Task<bool> LoginAsync(string username, string password)
@@ -20,4 +20,10 @@ public class LoginModel
     {
         return await _dal.InsertUserAsync(username, password);
     }
+}
+
+public interface ILoginModel
+{
+    Task<bool> LoginAsync(string username, string password);
+    Task<bool> SignupAsync(string username, string password);
 }

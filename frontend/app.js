@@ -145,6 +145,7 @@ function initLoginPage() {
   if (!form) return;
 
   form.addEventListener("submit", async (e) => {
+    console.log("Pressed");
     e.preventDefault();
     const msg = document.getElementById("msg");
     hideAlert(msg);
@@ -160,10 +161,12 @@ function initLoginPage() {
     try {
       const result = await apiLogin(username, password);
       if (result.ok) {
+        console.log("Success");
         sessionStorage.setItem("username", username);
         showAlert(msg, "Login successful! Redirecting...", "success");
         setTimeout(() => (window.location.href = "home.html"), 800);
       } else {
+        console.log("Fail");
         showAlert(msg, result.data.message || "Invalid username or password.", "error");
       }
     } catch {

@@ -3,7 +3,7 @@ using System.Data;
 
 namespace dal;
 
-public class LoginDal
+public class LoginDal : ILoginDal
 {
     private readonly string _connectionString;
 
@@ -42,4 +42,10 @@ public class LoginDal
             return false;
         }
     }
+}
+
+public interface ILoginDal
+{
+    Task<bool> ValidateUserAsync(string username, string password);
+    Task<bool> InsertUserAsync(string username, string password);
 }
