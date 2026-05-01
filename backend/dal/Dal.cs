@@ -25,6 +25,8 @@ public class LoginDal : ILoginDal
 
     public async Task<bool> InsertUserAsync(string username, string password)
     {
+        if (username == "" || password == "") return false;
+
         try
         {
             using var connection = new MySqlConnection(_connectionString);
