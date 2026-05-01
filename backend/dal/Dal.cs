@@ -3,7 +3,7 @@ using System.Data;
 
 namespace dal;
 
-public class LoginDal
+public class LoginDal : ILoginDal
 {
     private readonly string _connectionString;
 
@@ -25,6 +25,8 @@ public class LoginDal
 
     public async Task<bool> InsertUserAsync(string username, string password)
     {
+        if (username == "" || password == "") return false;
+
         try
         {
             using var connection = new MySqlConnection(_connectionString);
@@ -152,4 +154,10 @@ public class LoginDal
             throw;
         }
     }
+}
+
+public interface ILoginDal
+{
+    Task<bool> ValidateUserAsync(string username, string password);
+    Task<bool> InsertUserAsync(string username, string password);
 }

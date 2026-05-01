@@ -15,23 +15,19 @@ public record UpdateSettingsRequest(
 [Route("[controller]")]
 public class LoginController : ControllerBase
 {
-    private readonly IConfiguration _configuration;
 
-    public LoginController(IConfiguration configuration)
+    private readonly ILoginModel _loginModel;
+
+    public LoginController(ILoginModel loginModel)
     {
-        _configuration = configuration;
+        _loginModel = loginModel;
     }
 
     [HttpPost("api/login")]
     public async Task<IActionResult> Login([FromBody] LoginRequest request)
     {
-        var connectionString = _configuration.GetConnectionString("DefaultConnection");
-        if (string.IsNullOrWhiteSpace(connectionString))
-            return StatusCode(500, "Database connection string is missing.");
 
-        var loginModel = new LoginModel(connectionString);
-
-        if (await loginModel.LoginAsync(request.Username, request.Password))
+        if (await _loginModel.LoginAsync(request.Username, request.Password))
         {
             return Ok(new { message = "Welcome " + request.Username + "!" });
         }
@@ -44,13 +40,13 @@ public class LoginController : ControllerBase
     [HttpPost("api/signup")]
     public async Task<IActionResult> Signup([FromBody] LoginRequest request)
     {
-        var connectionString = _configuration.GetConnectionString("DefaultConnection");
-        if (string.IsNullOrWhiteSpace(connectionString))
-            return StatusCode(500, "Database connection string is missing.");
 
-        var loginModel = new LoginModel(connectionString);
+        if (string.IsNullOrWhiteSpace(request.Username) || string.IsNullOrWhiteSpace(request.Password))
+        {
+            return BadRequest(new { message = "Username and password cannot be empty." });
+        }
 
-        if (await loginModel.SignupAsync(request.Username, request.Password))
+        if (await _loginModel.SignupAsync(request.Username, request.Password))
         {
             return Ok(new { message = "Account created successfully." });
         }
@@ -63,16 +59,11 @@ public class LoginController : ControllerBase
     [HttpPost("api/guest")]
     public async Task<IActionResult> GuestLogin()
     {
-        var connectionString = _configuration.GetConnectionString("DefaultConnection");
-        if (string.IsNullOrWhiteSpace(connectionString))
-            return StatusCode(500, "Database connection string is missing.");
-
-        var loginModel = new LoginModel(connectionString);
 
         // Create guest account if it doesn't exist, then log in
-        await loginModel.SignupAsync("guest", "guestPassword");
+        await _loginModel.SignupAsync("guest", "guestPassword");
 
-        if (await loginModel.LoginAsync("guest", "guestPassword"))
+        if (await _loginModel.LoginAsync("guest", "guestPassword"))
         {
             return Ok(new { message = "Welcome guest!" });
         }
