@@ -39,7 +39,8 @@
             <div class="col-md-4 col-lg-3">
                 <div class="card shadow-sm settings-side-card">
                     <div class="list-group list-group-flush" id="settings-sidebar">
-                        <button class="list-group-item list-group-item-action active" data-settings-tab="general">
+                        <button class="list-group-item list-group-item-action active" data-settings-tab="general"
+                            id="settingsButton">
                             General
                         </button>
                         <button class="list-group-item list-group-item-action" data-settings-tab="notifications"
@@ -47,7 +48,7 @@
                             Notifications
                         </button>
                         <button class="list-group-item list-group-item-action" data-settings-tab="reservations"
-                            disabled>
+                            id="reservationButton">
                             Reservations
                         </button>
                     </div>
@@ -55,7 +56,7 @@
             </div>
 
             <div class="col-md-8 col-lg-9">
-                <div class="card shadow-sm">
+                <div class="card shadow-sm" id="settingsClass">
                     <div class="card-body p-4">
                         <section id="settings-general-section">
                             <h4 class="fw-bold mb-3">General</h4>
@@ -88,6 +89,15 @@
                                 type="button">Reset</button>
                             <button class="btn btn-wpi" id="settings-save-btn" type="button">Save</button>
                         </div>
+                    </div>
+                </div>
+
+                <div class="card shadow-sm" id="reservationsClass" style="display: none;">
+                    <div class="card-body p-4">
+                        <section id="settings-reservations-section">
+                            <h4 class="fw-bold mb-3">Reservations</h4>
+                            <table id="reservationTable"></table>
+                        </section>
                     </div>
                 </div>
             </div>
